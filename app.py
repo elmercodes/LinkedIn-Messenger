@@ -103,34 +103,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# query_engine = index.as_query_engine()
-# response = query_engine.query("tell me about this persons experience")
-
-# print(response)
