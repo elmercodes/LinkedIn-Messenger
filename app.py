@@ -49,29 +49,30 @@ def save_uploaded_file(uploaded_files):
 
 def main():
     st.header("Craft Messages for LinkedIn Profiles")
-    uploaded_file = st.file_uploader("Go to the LinkedIn page/profile you want to message. For Windows/Linux hit (Ctrl + S) to save the page, "
+    uploaded_files = st.file_uploader("Go to the LinkedIn page/profile you want to message. For Windows/Linux hit (Ctrl + S) to save the page, "
                                      "for Mac (Command + S). Afterwards, upload the file here.", accept_multiple_files=True)
 
-    if uploaded_file is not None:
-        saved_file_paths = save_uploaded_file(uploaded_file)
-        if saved_file_paths:
-            file_path = saved_file_paths[0]  # Use the first file
-            llm = OpenAI(model=model)
+    if uploaded_files:
+        saved_file_paths = save_uploaded_file(uploaded_files)
+        combined_documents = []
+
+        for file_path in saved_file_paths:
             reader = HTMLTagReader(tag="section", ignore_no_id=False)
             documents = reader.load_data(file_path)
-            index = SummaryIndex.from_documents(documents)
-            # Proceed with the rest of the logic...
+            combined_documents.extend(documents)  # Combining documents from all files
 
+        if combined_documents:
+            index = SummaryIndex.from_documents(combined_documents)
             memory = ChatMemoryBuffer.from_defaults(token_limit=40000)
 
             system_prompt = (
                 "You are a chatbot whose responsibility is to help craft carefully written messages to people on LinkedIn, "
-                "using the uploaded HTML files to learn more about the user and theperson being written to. "
+                "using the uploaded HTML files to learn more about the user and the person being written to. "
                 "Help the user craft a message in the manner they see fit."
             )
             chat_engine = index.as_chat_engine(
                 chat_mode="context",
-                llm=llm,
+                llm=OpenAI(model=model),
                 memory=memory,
                 system_prompt=system_prompt,
                 temperature=temperature
@@ -102,7 +103,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
